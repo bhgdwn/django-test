@@ -60,6 +60,21 @@ pipeline {
                 }
             }
         }
+
+	stage('Deploy to Kubernetes') {
+    	    steps {
+		script{
+        	    sh 'kubectl apply -f yaml/mysql-pv.yaml'
+                    sh 'kubectl apply -f yaml/mysql-pvc.yaml'
+        	    sh 'kubectl apply -f yaml/mysql-deployment.yaml'
+       		    sh 'kubectl apply -f yaml/mysql-service.yaml'
+        	    sh 'kubectl apply -f yaml/django-deployment.yaml'
+        	    sh 'kubectl apply -f yaml/django-service.yaml'
+        	    sh 'kubectl apply -f yaml/ingress.yaml'
+    		}
+	    }
+	}
+
     }
 
     post {

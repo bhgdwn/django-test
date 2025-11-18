@@ -17,18 +17,10 @@ pipeline {
         stage('Set Version') {
             steps {
                 script {
-                    VERSION = "v${BUILD_NUMBER}"
-                    IMAGE_TAG = "${DOCKERHUB_REPO}:${VERSION}"
+                    def VERSION = "v${BUILD_NUMBER}"
+                    env.IMAGE_TAG = "${DOCKERHUB_REPO}:${VERSION}"
                     echo "Docker Image Tag → ${IMAGE_TAG}"
                 }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                sh """
-                docker build -t ${IMAGE_TAG} .
-                """
             }
         }
 
@@ -36,6 +28,14 @@ pipeline {
             steps {
                 sh """
                 echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB_USR}" --password-stdin
+                """
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh """
+                docker build -t ${IMAGE_TAG} .
                 """
             }
         }

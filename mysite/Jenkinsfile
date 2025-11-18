@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB = credentials('dockerhub')
         DOCKERHUB_REPO = "bhangdawon/djangoapp"
     }
 
@@ -26,26 +25,22 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                sh """
-			withCredentials([usernamePassword(credentialsId: 'dockerhub',
-                                  usernameVariable: 'DOCKERHUB',
-                                  passwordVariable: 'DOCKERHUB_PSW')]) {
-    				sh """
-        				echo "Logging in to DockerHub..."
-        				echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB}" --password-stdin
-    				"""
-			}
-		}
-
-                echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB_USR}" --password-stdin
-                """
+                // Correct use of withCredentials
+                withCredentials([usernamePassword(credentialsId: 'dockerhub',
+                                                 usernameVariable: 'DOCKERHUB',
+                                                 passwordVariable: 'DOCKERHUB_PSW')]) {
+                    sh """
+                        echo "Logging in to DockerHub..."
+                        echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB}" --password-stdin
+                    """
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
                 sh """
-                docker build -t ${IMAGE_TAG} .
+                    docker build -t ${IMAGE_TAG} .
                 """
             }
         }

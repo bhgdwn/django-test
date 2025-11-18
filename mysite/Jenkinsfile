@@ -1,20 +1,15 @@
 pipeline {
     agent any
-    
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        DOCKERHUB_REPO = "bhangdawon/djangoapp"
-    }
 
-    triggers {
-        pollSCM('H/1 * * * *')   // GitHub webhook 사용 시 제거 가능
+    environment {
+        DOCKERHUB = credentials('dockerhub')    // ID must match Jenkins credentials ID
+        DOCKERHUB_REPO = "bhangdawon/djangoapp"
     }
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                echo "Git Repo 최신 내용 가져오기"
                 checkout scm
             }
         }
@@ -22,72 +17,55 @@ pipeline {
         stage('Set Version') {
             steps {
                 script {
-                    // Jenkins 빌드번호 기반 버전
                     VERSION = "v${BUILD_NUMBER}"
                     IMAGE_TAG = "${DOCKERHUB_REPO}:${VERSION}"
-
-                    echo "새 Docker 이미지 버전: ${IMAGE_TAG}"
+                    echo "Docker Image Tag → ${IMAGE_TAG}"
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                script {
-                    sh """
-                    docker build -t ${IMAGE_TAG} .
-                    """
-                }
+                sh """
+                docker build -t ${IMAGE_TAG} .
+                """
             }
         }
 
         stage('Docker Login') {
             steps {
-                script {
-                    sh """
-                    echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                    """
-                }
+                sh """
+                echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB_USR}" --password-stdin
+                """
             }
         }
 
         stage('Docker Push') {
             steps {
-                script {
-                    sh """
-                    docker push ${IMAGE_TAG}
-                    """
-                }
+                sh "docker push ${IMAGE_TAG}"
             }
         }
 
-	stage('Deploy to Kubernetes') {
-    	    steps {
-		script{
-        	    sh 'kubectl apply -f ~/django_git/yaml/mysql-pv.yaml'
-                    sh 'kubectl apply -f ~/django_git/yaml/mysql-pvc.yaml'
-        	    sh 'kubectl apply -f ~/django_git/yaml/mysql-deployment.yaml'
-       		    sh 'kubectl apply -f ~/django_git/yaml/mysql-service.yaml'
-        	    sh 'kubectl apply -f ~/django_git/yaml/django-deployment.yaml'
-        	    sh 'kubectl apply -f ~/django_git/yaml/django-service.yaml'
-        	    sh 'kubectl apply -f ~/django_git/yaml/ingress.yaml'
-    		}
-	    }
-	}
-
+        stage('K8S Deploy') {
+            steps {
+                sh 'kubectl apply -f ~/django_git/yaml/mysql-pv.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/mysql-pvc.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/mysql-deployment.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/mysql-service.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/django-deployment.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/django-service.yaml'
+                sh 'kubectl apply -f ~/django_git/yaml/ingress.yaml'
+            }
+        }
     }
 
     post {
         success {
-            echo "성공적으로 Docker Hub에 push 완료!"
+            echo "🎉 성공! DockerHub Push + Kubernetes Deploy 완료!"
         }
-        failure {
-            echo "빌드 실패! 로그를 확인하세요."
+        cleanup {
+            sh "docker system prune -af"   // Optional cleanup
         }
     }
 }
-
-
-
-
 

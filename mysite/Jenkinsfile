@@ -53,13 +53,13 @@ pipeline {
 
         stage('K8S Deploy') {
             steps {
-                sh 'kubectl apply -f ~/django_git/yaml/mysql-pv.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/mysql-pvc.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/mysql-deployment.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/mysql-service.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/django-deployment.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/django-service.yaml'
-                sh 'kubectl apply -f ~/django_git/yaml/ingress.yaml'
+        	sh 'kubectl apply -f mysite/yaml/mysql-pv.yaml'
+        	sh 'kubectl apply -f mysite/yaml/mysql-pvc.yaml'
+        	sh 'kubectl apply -f mysite/yaml/mysql-deployment.yaml'
+        	sh 'kubectl apply -f mysite/yaml/mysql-service.yaml'
+        	sh 'kubectl apply -f mysite/yaml/django-deployment.yaml'
+        	sh 'kubectl apply -f mysite/yaml/django-service.yaml'
+        	sh 'kubectl apply -f mysite/yaml/ingress.yaml'
             }
         }
     }

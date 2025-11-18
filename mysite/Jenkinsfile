@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB = credentials('dockerhub')    // ID must match Jenkins credentials ID
+        DOCKERHUB = credentials('dockerhub')
         DOCKERHUB_REPO = "bhangdawon/djangoapp"
     }
 
@@ -64,7 +64,7 @@ pipeline {
             echo "🎉 성공! DockerHub Push + Kubernetes Deploy 완료!"
         }
         cleanup {
-            sh "docker system prune -af"   // Optional cleanup
+            sh "docker system prune -af"
         }
     }
 }

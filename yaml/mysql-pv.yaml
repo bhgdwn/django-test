@@ -4,7 +4,7 @@ metadata:
   name: mysql-pv-nfs
 spec:
   capacity:
-    storage: 5Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteMany   # NFS supports multiple nodes
   storageClassName: nfs-client

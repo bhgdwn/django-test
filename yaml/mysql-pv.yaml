@@ -7,6 +7,7 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteMany   # NFS supports multiple nodes
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs-client
   nfs:
     path: /srv/nfs/mysql    # Path exported on your NFS server

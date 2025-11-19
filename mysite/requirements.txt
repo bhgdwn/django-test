@@ -1,2 +1,9 @@
 Django>=4.0
 markdown
+mysqlclient>=8.0
+
+djangorestframework
+django-cors-headers
+
+python-dotenv
+gunicorn

@@ -2,7 +2,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: django-migrate
-  namespace: django
+  namespace: djangoannotations:
+  # ArgoCD PreSync hook: runs before other resources in the app
+  argocd.argoproj.io/hook: PreSync
+  argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:

@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate
+  namespace: django
+spec:
+  template:
+    spec:
+      containers:
+        - name: django-migrate
+          image: your-django-image:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for MySQL to be ready..."
+              until mysqladmin ping -h "$DATABASE_HOST" -u "$DATABASE_USER" -p"$DATABASE_PASSWORD" --silent; do
+                echo "MySQL not ready yet, sleeping 2s..."
+                sleep 2
+              done
+              echo "MySQL is up — running migrations"
+              python manage.py migrate
+          env:
+            - name: DATABASE_HOST
+              value: "mysql"
+            - name: DATABASE_NAME
+              value: "django_db"
+            - name: DATABASE_USER
+              value: "django"
+            - name: DATABASE_PASSWORD
+              value: "django123"
+      restartPolicy: OnFailure

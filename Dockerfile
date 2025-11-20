@@ -27,8 +27,6 @@ ENV PYTHONUNBUFFERED 1
 
 # 8. 마이그레이션 및 정적 파일 수집
 WORKDIR /app/mysite
-RUN python manage.py makemigrations
-RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 
 # 9. 애플리케이션 실행

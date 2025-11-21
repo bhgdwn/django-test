@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 # 4. requirements.txt를 컨테이너에 복사하고 의존성 설치
 COPY mysite/requirements.txt /app/
 RUN pip install --upgrade pip
+RUN pip install gunicorn
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Django 애플리케이션 소스 복사
@@ -30,5 +31,5 @@ WORKDIR /app/mysite
 RUN python manage.py collectstatic --noinput
 
 # 9. 애플리케이션 실행
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
 EXPOSE 8000
